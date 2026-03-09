@@ -27,11 +27,6 @@ SUPABASE_USER= postgres.[YOUR PROJECT ID]
 # If you are creating your own database based on the tick tracker, please keep this secret
 # This would normally be your database password, found in the Database settings. 
 SUPABASE_PASSWORD= [YOUR PASSWORD]
-
-# If you are trying to recreate the analysis with your own Supabase database, please folllow these instructions:
-# 1. Go to https://supabase.com and create a project, or use an existing one
-# 2. Go to Project Settings > Database
-# 3. Find your connection details and fill in the above variables with your own credentials.
 ```
 #### Run the Scripts
 To recreate the database with the appropriate schema and same data,  run the following scripts in the tick_tracker_app directory using RStudio or PositCloud: 
@@ -39,5 +34,5 @@ To recreate the database with the appropriate schema and same data,  run the fol
 2. Run "make_tick_tracker.R" and write the table to your database
 3. Go to "app.R" and  click "Run  App" within RStudio or PositCloud. 
 
-After completing these steps, you should have recreated the same database with the same exact table schemas used for the New York State Park Tick Tracker App. You should have a local version of the app, hosted with the synthetic tick tracker data on your database, that you can replicate and repurpose for your own use case. 
+After completing these steps, you should have recreated the same database with the same exact table schemas used for the New York State Park Tick Tracker App. You should have a local version of the app that you can replicate and repurpose for your own park service use case. 
 

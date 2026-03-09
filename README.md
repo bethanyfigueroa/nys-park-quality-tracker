@@ -1,6 +1,6 @@
 # New York State Park Tick Tracker App
 
-A simple app for users to evaluate and report encounters with ticks at New York State parks. This app is intended to help hikers understand the level of risk certain parks may carry for tick-borne diseases, as well as help  state park service administrators monitor potential tick outbreaks. Users are encouraged to document the number of ticks observed and any tick bites received during their hike via this app. New entries will automatically be pushed to the Tick Tracker database. 
+A simple app for users to evaluate and report encounters with ticks at New York State parks. This app is intended to help hikers understand the level of risk certain parks may carry for tick-borne diseases, as well as help  state park service administrators monitor potential tick outbreaks. Users are encouraged to document the number of ticks observed and any tick bites received during their hike via this app. New entries will automatically be pushed to the private database servicing the [New York State Park Tick Tracker App](https://lm68o2-bethany-figueroa.shinyapps.io/tick_tracker_app/). 
 #### Database Schema 
 The database for the New York State Park Tick Tracker is divided into a primary and secondary data table. The primary data table "tick_tracker" is updated live by the user entries, while the secondary table "park_list" is a reference list for park names and locations. The schema for the tick_tracker table is shown below along with definitions for each variable.
 
