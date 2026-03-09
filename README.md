@@ -12,6 +12,7 @@ The database for the New York State Park Tick Tracker is divided into a primary 
 | Date of Incident | report_date                  | Timestamp     | Date of the reported tick sighting, stored in the database as a universal date time. This is recorded automatically whenever the user submits a response to the database.  |
 | Ticks Spotted    | ticks_identified             | Numeric float | Number of ticks spotted during the reported hike. Must be at least one or greater. It is assumed the user is only using the app to report a tick sighting                  |
 | Bites Received   | tick_bites                   | Numeric float | Number of tick bites received from the reported hike. The number must be zero or greater.                                                                                  |
+
 The schema for the park_list is shown below, based on the "[State Park Facility Points](https://data.ny.gov/Recreation/State-Park-Facility-Points/9uuk-x7vh/about_data)" database and New York's list of [Park Regions](https://parks.ny.gov/visit/regions) developed by the [New York State Office of Parks, Recreation and Historic Preservation (2024)](https://data.ny.gov/Recreation/State-Park-Facility-Points/9uuk-x7vh/about_data) 
 
 | **Variable in park_list** | **Data Type** | **Description**                                                      |
