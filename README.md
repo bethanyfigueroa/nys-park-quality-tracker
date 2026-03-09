@@ -28,8 +28,6 @@ To access this app, open the program via the following shinyapp-io link:
 
 The App includes a dashboard with summary statistics for New York’s park regions and a visual of the time trends for the total number of ticks reported at a selected park. The user can view the raw tick tracker database by selecting the "TICK TRACKER" tab. The mean and 95% confidence interval are calculated based on the sample size (hiker reports) for each park and region, available in the tabs "INDIVIDUAL PARKS" and "PARK REGIONS" respectively. 
 
-![[ticktracker_example.png](https://github.com/bethanyfigueroa/nys-park-quality-tracker/blob/main/ticktracker_example.png)
-
 The app can be recreated on your local machine by cloning the github repository and running the R project file "nys-park-quality-tracker.Rproj" found in the main directory opened via Posit Cloud or RStudio. Before you can recreate the program, you must add your own .env file with the credentials for your own PostgreSQL Database, such as [Supabase](https://supabase.com/).  Details on how to create an .env file are available in the README located in the app directory. **By default, accessing the code this way will prevent you from pushing new entries into the Tick Tracker database.** It will only allow you to remake the application, along with the tick tracker's schema and synthetic data. 
 
 To recreate the database with the appropriate schema and same data,  run the following scripts in the tick_tracker_app directory using RStudio or PositCloud: 
