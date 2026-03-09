@@ -1,5 +1,5 @@
 # Bethany Figueroa, 3/9/26, SYSEN 5460
-# Main Script for the NYS Park Tick Quality Tracker
+# Main Script for the NYS Park Tick Tracker
 
 ###### Load Packages and Data ####
 library(dplyr)      # for data wrangling and pipelines
@@ -33,13 +33,13 @@ if (file.exists(".env")) {print(".env identified.")} else {
 table_of_interest = "tick_tracker" # live data table
 # For the code used to generated the table schema and synthetic data, view make_tick_tracker.Rf
 
-# Check working directory for env file. if it doesnt exist, then change directory. 
+# Check working directory for env file. if it doesn't exist, then change directory. 
 
-# Read the local environment file. Note that the USER NEEDS TO HAVE AN .ENV WITH CORRECT CREDENTIALS
-# The user can add ANONYMOUS CREDENTIALS in their .env file if they only want to view the data but not change the database. 
+# Read the local environment file. Note that the USER NEEDS TO HAVE A .ENV WITH CORRECT CREDENTIALS
+# BEFORE RECREATING THE APPLICATION. This should be the same .env you used to make your database containing 
+# the tables "park_list" and "tick_tracker" from the scripts make_park_list.R and make_tick_tracker.R 
 readRenviron(".env") # load environment
 
-# Enter your own password and username next to the following indexes if running on your own 
 # SUPABASE credentials: SUPABASE_HOST, SUPABASE_PORT, SUPABASE_DB, SUPABASE_USER, and SUPABASE_PASSWORD
 SUPABASE_HOST = Sys.getenv("SUPABASE_HOST")
 SUPABASE_PORT = Sys.getenv("SUPABASE_PORT")
@@ -87,7 +87,7 @@ ui = function(){
     # Make a card header with dark color background and light text
     card_header(class = "bg-dark text-light",
                 # Add this title                
-                card_title("New York State Park Tick Quality Tracker: Live Monitoring of Ticks Across State Parks")
+                card_title("New York State Park Tick Tracker: Live Monitoring of Ticks Across State Parks")
                 )
   )
   ########## SELECTOR CARD #################################
@@ -129,7 +129,7 @@ ui = function(){
   ########## TEXT CARDS FOR THE CHARTS #################################
   c4 = bslib::layout_column_wrap(
     bslib::card(
-      bslib::card_header("What data does the New York State Park Tick Quality Tracker include?", class = "bg-dark"),
+      bslib::card_header("What data does the New York State Park Tick Tracker include?", class = "bg-dark"),
       bslib::card_footer(textOutput("text_highlight"))),
   )
   
@@ -218,10 +218,12 @@ server = function(input, output, session) {
     # Create a dataframe using the user's inputs. Formatted with exact schema as the database table
     inputform = tibble(name = input$submitpark, county = park_county[input$submitpark], 
                        region = park_region[input$submitpark],
-                       # Save the date time of the report in eastern standard time (EST) using the system's time
-                       report_date = ymd_hms(Sys.time(), tz = "EST"), 
-                       # Report the number of identified ticks and bites.
-                       ticks_identified = input$ticks, tick_bites = input$bites)
+                       # Save the date time of the report using the system's time. Use location to account for timezone
+                       report_date = ymd_hms(Sys.time(), tz = Sys.timezone(location = TRUE)), 
+                       # Report the number of identified ticks. Clean user's input by making it a positive integer
+                       ticks_identified = abs(as.integer(round(input$ticks))), 
+                       # Report the number of bites recieved. Clean user's input by making it a positive integer
+                       tick_bites = abs(as.integer(round(input$bites))))
     
     # Insert user's dataframe as a new row into the table of interest using a postgre query
     dbSendQuery(
@@ -229,8 +231,8 @@ server = function(input, output, session) {
       list(inputform$name,inputform$county,inputform$region, 
            inputform$report_date, inputform$ticks_identified, inputform$tick_bites))
     
-    # Confirm submission and report the date of submission cleanly 
-    a = paste("SUBMITTED:",stamp("3/1/26")(ymd_hms(Sys.time(), tz = "EST"))) 
+    # Confirm submission and report the date of submission cleanly for NY timezone
+    a = paste("SUBMITTED:",stamp("3/1/26 1:00 PM")(with_tz((ymd_hms(Sys.time(), tz = Sys.timezone())),tzone = "America/New_York")))
     
   }) %>% bindEvent(input$send)
   
@@ -309,7 +311,7 @@ server = function(input, output, session) {
         title = paste("How Many Ticks Were Reported at Your Park?"),
         
         # Add the label for the horizontal axis (the time frame of interest)
-        x = paste("Date of Tick Sighting at",input$viewpark,"Park"),
+        x = paste("Date of Tick Sightings at",input$viewpark,"Park"),
         
         # Add the label for the vertical axis (Number of ticks spotted)
         y = "Number of Ticks per Hike") + 
@@ -358,17 +360,16 @@ server = function(input, output, session) {
       # Add labels for the tracker
       labs(
         # Add a title for the graph 
-        title = paste0("How Severe are Tick Encounters in NYS Park Regions?"),
+        title = paste0("How Severe are Tick Encounters in Parks?"),
         
-        # X-axis is trivial, will leave as blank. Each represents a labelled park region group
-        x = "",
+        # x-axis: regions representing groups of parks in New York. Give the graph some
+        x = "New York State Park Region",
         
-        # Add the label for the vertical axis (Number of ticks spotted)
-        y = paste0("Average Bites per Report (",stamp("3/01/26")(ymd_hms(min((stat_tick_tracker())$report_date))),
+        # Add the label for the y-axis (Number of ticks spotted) along with the scope of the datas
+        y = paste0("Average Bites per Encounter \n[From ",length((stat_tick_tracker())$report_date),
+                   " reports in ",stamp("3/01/26")(ymd_hms(min((stat_tick_tracker())$report_date), tz = "EST")),
                   # Using lubridate's stamp function to make cleaner labels for dates
-                  " to ", stamp("3/01/26")(ymd_hms(max((stat_tick_tracker())$report_date), tz = "EST")),")\n[From ",
-                  length((stat_tick_tracker())$report_date),
-                  " reports by park visitors]")) + 
+                  " - ", stamp("3/01/26")(ymd_hms(max((stat_tick_tracker())$report_date), tz = "EST")),"]")) + 
       
       # Change the theme to classic and set a friendly upper and lower bound for the chart
       theme_classic() + 
@@ -395,7 +396,7 @@ server = function(input, output, session) {
     stat_tick_tracker() %>%
       
       # Change the report date column to a format that is user friendly 
-      mutate(report_date = as.character(stamp("March 1, 2026 1:00 PM")(with_tz(report_date,tzone = "EST"))), 
+      mutate(report_date = as.character(stamp("March 1, 2026 1:00 PM")(with_tz(report_date,tzone = "America/New_York"))), 
              
              # Need to round and set as characters to avoid showing unwanted decimal points
              ticks_identified = as.character(round(ticks_identified))) %>%
@@ -472,9 +473,8 @@ server = function(input, output, session) {
   #Value Box 3: Last reported date of tick sighting
   output$last_update_date = renderText({ 
     # Report date of last report. Time stamp with a simple format. 
-    as.character(stamp("3/1/26")(with_tz(ymd_hms(max( (stat_tick_tracker())$report_date)),tzone = "EST")))
+    as.character(stamp("3/1/26")(ymd_hms(max( (stat_tick_tracker())$report_date),tz = "America/New_York")))
     }) %>% bindEvent({ stat_tick_tracker() }) # Update if stat changed
-
 }
 
 ########## Run the application ########## 

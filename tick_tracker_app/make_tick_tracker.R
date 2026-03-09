@@ -1,5 +1,5 @@
 # Bethany Figueroa, 3/9/26, SYSEN 5460
-# Script for creating the Schema and synthetic data for the NYS Park Tick Quality Tracker
+# Script for creating the Schema and synthetic data for the NYS Park Tick Tracker
 
 ##### Load Packages####
 library(DBI)        # for database connections
@@ -30,9 +30,9 @@ table_of_interest = "tick_tracker" # main live data table
 # Read the local environment fill (it must match with your SUPABASE credentials)
 readRenviron("tick_tracker_app/.env") 
 
-# SUPABASE credentials. The password pulled from the .env is strictly private
-# If you are making your own database for the tick tracker, please add your own credentials next to the following 
-# Indexed as SUPABASE_HOST, SUPABASE_PORT, SUPABASE_DB, SUPABASE_USER, and SUPABASE_PASSWORD
+# SUPABASE credentials. The password pulled from the .env is strictly confidential 
+# If you are making your own database for the tick tracker, please add your own credentials for:  
+# SUPABASE_HOST, SUPABASE_PORT, SUPABASE_DB, SUPABASE_USER, and SUPABASE_PASSWORD
 SUPABASE_HOST = Sys.getenv("SUPABASE_HOST")
 SUPABASE_PORT = Sys.getenv("SUPABASE_PORT")
 SUPABASE_DB = Sys.getenv("SUPABASE_DB")
@@ -112,7 +112,7 @@ tick_tracker %>% print(n = 350)
 # This is not ideal, as it will cause issues for the table schema. As such, rename the column names to lower case
 tick_tracker = tick_tracker %>% rename(name = Name, county = County, region = Region)
 
-# Write the database to SUPABASE 
+# Write the table to your SUPABASE database. 
 dbWriteTable(con, table_of_interest,tick_tracker) 
 
 # Check the table is there 

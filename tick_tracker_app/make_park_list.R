@@ -1,5 +1,5 @@
 # Bethany Figueroa, 3/9/26, SYSEN 5460
-# Script for making a list of park locations for the NYS Park Tick Quality Tracker
+# Script for making a list of park locations for the NYS Park Tick Tracker
 
 ##### Load Packages####
 library(readr)      # for reading data, such as csv files
@@ -8,19 +8,21 @@ library(RPostgres)  # for PostgreSQL connections (SUPABASE uses PostgreSQL)
 library(dplyr)      # for data manipulation with pipelines
 library(dbplyr)     # for extending dplyr to work with databases
 
+# Note that the USER NEEDS TO HAVE A .ENV FILE WITH CORRECT CREDENTIALS to run this script
+# Since this script is not a part of the app and purely intended to setup the park_list, 
+# you must create your own .env file with your own credentials for your own PostgreSQL / Supabase database 
+
 # Define a table that is only there to track park names for the NYS Park Quality Tracker database
 table_dictionary = "park_list"
-
-# Note that the USER NEEDS TO HAVE A .ENV FILE WITH CORRECT CREDENTIALS to run this script
-# Since this script is not a part of the app and purely intended to setup the park_list, no public permissions
-# Are granted to modify the park_list table in the NYS Park Quality Tracker 
 
 # The way park dictionary was created was from reading the unique names of state owned parks from NY
 # https://data.ny.gov/Recreation/State-Park-Facility-Points/9uuk-x7vh/about_data
 # See the script "update_park_list.R" for how this list was made and pushed to SUPABASE
 
-# NOTE THAT YOU MUST THE GITHUB DIRECTORY (nys-park-quality-tracker) IN ORDER TO RUN THIS SCRIPT
-# Use setwd(insert your directory's path here) if needed
+# NOTE THAT YOU SHOULD BE RUNNING THIS SCRIPT FROM THE RProj FILE IN RSTUDIO OR POSITCLOUD
+# IN ORDER TO ENSURE YOU HAVE THE CORRECT WORKING DIRECTORY
+# Otherwise, please adjust the working directory to the "nys-park-quality-tracker" folder
+# To be able to read the following csv file from the park_list_reference folder 
 park_table = read_csv("park_list_reference/State_Park_Facility_Points_12_2024.csv")
 
 # NY Makes the following definitions for variables of interest: 
@@ -36,14 +38,13 @@ park_table = read_csv("park_list_reference/State_Park_Facility_Points_12_2024.cs
 readRenviron("tick_tracker_app/.env") # load environment
 
 # SUPABASE credentials. The password pulled from the .env is strictly confidential 
-# If you are making your own database for the tick tracker, please add your own credentials next to the following 
-# Indexed as SUPABASE_HOST, SUPABASE_PORT, SUPABASE_DB, SUPABASE_USER, and SUPABASE_PASSWORD
+# If you are making your own database for the tick tracker, please add your own credentials for:  
+# SUPABASE_HOST, SUPABASE_PORT, SUPABASE_DB, SUPABASE_USER, and SUPABASE_PASSWORD
 SUPABASE_HOST = Sys.getenv("SUPABASE_HOST")
 SUPABASE_PORT = Sys.getenv("SUPABASE_PORT")
 SUPABASE_DB = Sys.getenv("SUPABASE_DB")
 SUPABASE_USER = Sys.getenv("SUPABASE_USER")
 SUPABASE_PASSWORD = Sys.getenv("SUPABASE_PASSWORD")
-
 
 # Function for connecting to the database that you gave SUPABASE credentials for 
 connect = function(password = SUPABASE_PASSWORD, user = SUPABASE_USER) {
@@ -87,7 +88,7 @@ park_table = park_table %>% mutate(Region = park_regions[Region])
 # Check the park_table
 park_table %>% glimpse()
 
-# Write the database to SUPABASE 
+# Write the table to your SUPABASE database. 
 dbWriteTable(con, table_dictionary,park_table)
 
 # Check the table is there 
